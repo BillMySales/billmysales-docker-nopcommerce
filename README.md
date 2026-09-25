@@ -103,7 +103,10 @@ comes from `DB_*` on every start (`scripts/entrypoint.sh`), not from
   installation form (`/install`) like a browser (antiforgery token included):
   PostgreSQL, the admin user, no sample data, country and culture
   `NOP_COUNTRY_CULTURE` (`CL-es-CL`: Spanish language pack, CLP, Chile), no
-  newsletter subscription. Then starts it once more: nopCommerce installs its
+  newsletter subscription. nopCommerce counts as installed once it has a
+  connection string, so this start runs without
+  `ConnectionStrings__ConnectionString` in its environment. Then starts it
+  once more: nopCommerce installs its
   plugins on the start after the installer, as after the web installer. The
   `citext` extension nopCommerce needs is created first (its installer only
   does it when it creates the database itself).
@@ -171,11 +174,17 @@ templates: `setup` writes Spanish subjects and bodies for the 46 active
 templates (`config/nopcommerce/message-templates.es.json`) into the
 templates themselves, once (with a single published language nopCommerce
 ignores per-language template translations). Edit them in the admin
-(Content management > Message templates).
+(Content management > Message templates). The file maps each template's
+`Name` to its `subject` and `body`, generated from the database's English
+templates with a map of English to Spanish phrases: for a new nopCommerce
+version, compare it with the new database's `MessageTemplate` rows (names
+and `%tokens%`) and translate what changed.
 
 The installer asks nopcommerce.com for the language pack's download link,
 sending the admin email (nopCommerce's web installer always does); use a
-placeholder admin email and change it later if that matters.
+placeholder admin email and change it later if that matters. The call isn't
+blocked on purpose: without that link es-CL gets ~860 text resources instead
+of ~7.9k.
 
 Integrations
 ------------
@@ -276,6 +285,10 @@ Notes:
   HTTP 400), and the healthchecks request `/robots.txt`, not a page. The
   sample slider's links, stored by the installer with setup's internal URL
   (`http://127.0.0.1:8080/`), are made relative.
+- For maintainers of `scripts/configure.sh`: enum settings store names, not
+  ids (`taxsettings.taxdisplaytype` = `IncludingTax`), and the store's
+  `HomepageTitle` is set empty (otherwise the home page title reads
+  "Tienda. Tienda").
 - nopCommerce's license (nopCommerce Public License 4.0) requires the
   "Powered by nopCommerce" link in the store footer unless you buy its
   removal.
@@ -326,6 +339,17 @@ What was checked for this stack (2026-09-25):
   install).
 - Not tested: issuing a real Let's Encrypt certificate (needs a public
   domain), real payment providers, a real SMTP provider.
+
+Testing
+-------
+
+- The admin product form POST needs every field of the form (as a browser
+  sends it; multi-selects only their selected options), antiforgery token
+  included.
+- Guest one-page checkout, after adding a product to the cart:
+  `/checkout/OpcSaveBilling/`, `OpcSaveShippingMethod` (value
+  `Despacho___Shipping.FixedByWeightByTotal`), `OpcSavePaymentMethod`,
+  `OpcSavePaymentInfo`, `OpcConfirmOrder`.
 
 Resource usage
 --------------
