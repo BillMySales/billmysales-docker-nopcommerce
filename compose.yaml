@@ -1,0 +1,242 @@
+# nopCommerce stack: Caddy (TLS) + nopCommerce (own image from image/: the
+# official application on the current .NET runtime) + PostgreSQL, with a
+# setup job and optional backups and Mailpit.
+#
+# Quick start (development):
+#   cp .env.dev.example .env
+#   docker compose up -d --build
+#   docker compose logs -f setup   # wait for "==> Done"
+#
+# Production: start from .env.prod.example instead. See README.md.
+#
+# Required variables have no default: compose refuses to start without them.
+
+name: ${COMPOSE_PROJECT_NAME:-nopcommerce}
+
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: ${LOG_MAX_SIZE:-10m}
+    max-file: "${LOG_MAX_FILE:-3}"
+
+# The nopCommerce image (image/Dockerfile), shared by setup and nop.
+x-nop: &nop
+  image: ${NOP_IMAGE:-nopcommerce-stack}:${NOP_VERSION:-4.90.8}-dotnet${DOTNET_VERSION:-9.0}
+  build:
+    context: ./image
+    args:
+      NOP_VERSION: ${NOP_VERSION:-4.90.8}
+      DOTNET_VERSION: ${DOTNET_VERSION:-9.0}
+  logging: *logging
+
+x-nop-env: &nop-env
+  NOP_URL: ${NOP_URL:?Set NOP_URL in .env (e.g. https://shop.example.com)}
+  NOP_HOST: ${NOP_HOST:?Set NOP_HOST in .env (the host name of NOP_URL)}
+  DB_HOST: db
+  DB_PORT: 5432
+  DB_NAME: ${DB_NAME:-nopcommerce}
+  DB_USER: ${DB_USER:-nopcommerce}
+  DB_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in .env}
+  # Behind Caddy (and Traefik): trust X-Forwarded-For/-Proto from private
+  # addresses.
+  HostingConfig__UseProxy: "true"
+  HostingConfig__KnownNetworks: 10.0.0.0/8,172.16.0.0/12,192.168.0.0/16
+  TZ: ${TIMEZONE:-America/Santiago}
+  # Written by setup into the database on every run; also given to the app so
+  # that a change recreates it (nopCommerce caches its settings).
+  NOP_STORE_NAME: ${NOP_STORE_NAME:-nopCommerce}
+  SMTP_HOST: ${SMTP_HOST:-}
+  SMTP_PORT: ${SMTP_PORT:-587}
+  SMTP_SECURE: ${SMTP_SECURE:-tls}
+  SMTP_USER: ${SMTP_USER:-}
+  SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+  SMTP_FROM: ${SMTP_FROM:-}
+  SMTP_FROM_NAME: ${SMTP_FROM_NAME:-}
+
+x-nop-volumes: &nop-volumes
+  # appsettings.json, plugins.json, DataProtection keys (+ the image's
+  # App_Data files, refreshed by setup).
+  - app_data:/app/App_Data
+  # Files uploaded in the admin's editor, and picture thumbnails (cache).
+  - uploaded:/app/wwwroot/images/uploaded
+  - thumbs:/app/wwwroot/images/thumbs
+  - ./scripts:/usr/local/share/stack/scripts:ro
+
+services:
+  db:
+    image: postgres:${POSTGRES_VERSION:-18}-alpine
+    restart: unless-stopped
+    logging: *logging
+    environment:
+      POSTGRES_DB: ${DB_NAME:-nopcommerce}
+      POSTGRES_USER: ${DB_USER:-nopcommerce}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in .env}
+    volumes:
+      # PostgreSQL 18+ images keep their data under /var/lib/postgresql/<major>.
+      - db_data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          memory: ${DB_MEMORY_LIMIT:-1g}
+
+  # One-shot job: nopCommerce's web installer driven over HTTP on a first
+  # run, then the store settings. Safe to repeat; runs on every `up`.
+  setup:
+    <<: *nop
+    restart: "no"
+    # Root only to own the volumes; nopCommerce runs as the image's app user.
+    user: root
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      <<: *nop-env
+      NOP_ADMIN_EMAIL: ${NOP_ADMIN_EMAIL:?Set NOP_ADMIN_EMAIL in .env}
+      NOP_ADMIN_PASSWORD: ${NOP_ADMIN_PASSWORD:?Set NOP_ADMIN_PASSWORD in .env}
+      NOP_COUNTRY_CULTURE: ${NOP_COUNTRY_CULTURE:-CL-es-CL}
+      NOP_TAX_RATE: ${NOP_TAX_RATE-19}
+      NOP_TAX_NAME: ${NOP_TAX_NAME:-IVA}
+      NOP_PRICES_INCLUDE_TAX: ${NOP_PRICES_INCLUDE_TAX:-true}
+      NOP_EMAILS_SPANISH: ${NOP_EMAILS_SPANISH:-true}
+    volumes:
+      - app_data:/app/App_Data
+      - uploaded:/app/wwwroot/images/uploaded
+      - thumbs:/app/wwwroot/images/thumbs
+      - ./scripts:/usr/local/share/stack/scripts:ro
+      - ./config/nopcommerce:/usr/local/share/stack/config/nopcommerce:ro
+    entrypoint: ["sh", "/usr/local/share/stack/scripts/setup.sh"]
+    deploy:
+      resources:
+        limits:
+          memory: ${SETUP_MEMORY_LIMIT:-1g}
+
+  # nopCommerce (Kestrel, internal port 8080): store, admin (/admin),
+  # scheduled tasks.
+  nop:
+    <<: *nop
+    restart: unless-stopped
+    depends_on:
+      setup:
+        condition: service_completed_successfully
+    environment:
+      <<: *nop-env
+    extra_hosts:
+      # nopCommerce runs its scheduled tasks (emails, ...) by POSTing to its
+      # own public URL (NOP_URL/scheduletask/runtask): resolve that host to
+      # the Docker host, where Caddy (or Traefik) publishes the site, so it
+      # also works without hairpin NAT or with a *.localhost dev URL.
+      - "${NOP_HOST:?Set NOP_HOST in .env (the host name of NOP_URL)}:host-gateway"
+      # Lets nopCommerce reach services on the host (e.g. an app running
+      # locally) at http://host.docker.internal:<port>, also on Linux.
+      - "host.docker.internal:host-gateway"
+    volumes: *nop-volumes
+    entrypoint: ["sh", "/usr/local/share/stack/scripts/entrypoint.sh"]
+    # Not "/": nopCommerce builds picture URLs from the request's host and
+    # caches them, so a healthcheck on a page would give every visitor
+    # http://localhost:8080/... images.
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "-o", "/dev/null", "http://localhost:8080/robots.txt"]
+      interval: 15s
+      timeout: 10s
+      retries: 30
+      start_period: 60s
+    deploy:
+      resources:
+        limits:
+          memory: ${NOP_MEMORY_LIMIT:-1g}
+
+  caddy:
+    image: caddy:${CADDY_VERSION:-2.11}-alpine
+    restart: unless-stopped
+    logging: *logging
+    depends_on:
+      nop:
+        condition: service_healthy
+    environment:
+      SITE_ADDRESS: ${SITE_ADDRESS:-:80}
+      UPLOAD_MAX_SIZE: ${UPLOAD_MAX_SIZE:-32M}
+    ports:
+      - "${HTTP_BIND:-127.0.0.1}:${HTTP_PORT:-80}:80"
+      - "${HTTP_BIND:-127.0.0.1}:${HTTPS_PORT:-443}:443"
+      - "${HTTP_BIND:-127.0.0.1}:${HTTPS_PORT:-443}:443/udp"
+    volumes:
+      - ./config/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      # TLS certificates and keys (keep them: ACME rate limits).
+      - caddy_data:/data
+      - caddy_config:/config
+    healthcheck:
+      # robots.txt, not a page (see nop's healthcheck).
+      test: ["CMD", "curl", "-fsS", "-o", "/dev/null", "http://localhost:8080/robots.txt"]
+      interval: 15s
+      timeout: 10s
+      retries: 30
+      start_period: 5s
+    deploy:
+      resources:
+        limits:
+          memory: ${CADDY_MEMORY_LIMIT:-256m}
+
+  # Optional (profile "backup"): database dump + App_Data + uploads every
+  # BACKUP_INTERVAL_HOURS, kept BACKUP_KEEP_DAYS days in the `backups` volume
+  # (overrides/local-dirs.yaml puts them in a local directory instead).
+  backup:
+    image: postgres:${POSTGRES_VERSION:-18}-alpine
+    profiles: ["backup"]
+    restart: unless-stopped
+    logging: *logging
+    depends_on:
+      setup:
+        condition: service_completed_successfully
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME:-nopcommerce}
+      DB_USER: ${DB_USER:-nopcommerce}
+      DB_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in .env}
+      BACKUP_INTERVAL_HOURS: ${BACKUP_INTERVAL_HOURS:-24}
+      BACKUP_KEEP_DAYS: ${BACKUP_KEEP_DAYS:-7}
+    volumes:
+      # Read-write so `backup.sh restore` can put them back.
+      - app_data:/data/app_data
+      - uploaded:/data/uploaded
+      - backups:/backups
+      - ./scripts/backup.sh:/usr/local/bin/backup.sh:ro
+    entrypoint: ["bash", "/usr/local/bin/backup.sh"]
+    healthcheck:
+      test: ["CMD", "bash", "/usr/local/bin/backup.sh", "health"]
+      interval: 5m
+      timeout: 10s
+      retries: 3
+      start_period: 5m
+    deploy:
+      resources:
+        limits:
+          memory: ${BACKUP_MEMORY_LIMIT:-512m}
+
+  # Optional (profile "mailpit", development): catches all outgoing mail.
+  # Set SMTP_HOST=mailpit and SMTP_PORT=1025; web UI on MAILPIT_PORT.
+  mailpit:
+    image: axllent/mailpit:${MAILPIT_VERSION:-v1.31}
+    profiles: ["mailpit"]
+    restart: unless-stopped
+    logging: *logging
+    environment:
+      MP_SMTP_AUTH_ACCEPT_ANY: 1
+      MP_SMTP_AUTH_ALLOW_INSECURE: 1
+    ports:
+      - "${HTTP_BIND:-127.0.0.1}:${MAILPIT_PORT:-8025}:8025"
+
+volumes:
+  db_data:
+  app_data:
+  uploaded:
+  thumbs:
+  caddy_data:
+  caddy_config:
+  backups:

@@ -1,0 +1,186 @@
+{
+ "Blog.BlogComment": {
+  "subject": "%Store.Name%. Nuevo comentario en el blog",
+  "body": "<p>\n<a href=\"%Store.URL%\">%Store.Name%</a>\n<br />\n<br />\nSe publicó un nuevo comentario en la entrada del blog \"%BlogComment.BlogPostTitle%\".\n</p>\n"
+ },
+ "Customer.BackInStock": {
+  "subject": "%Store.Name%. Producto disponible nuevamente",
+  "body": "<p>\n<a href=\"%Store.URL%\">%Store.Name%</a>\n<br />\n<br />\nHola, %Customer.FullName%:\n<br />\nEl producto <a target=\"_blank\" href=\"%BackInStockSubscription.ProductUrl%\">%BackInStockSubscription.ProductName%</a> ya está disponible.\n</p>\n"
+ },
+ "Customer.EmailRevalidationMessage": {
+  "subject": "%Store.Name%. Valida tu correo",
+  "body": "<p>\n<a href=\"%Store.URL%\">%Store.Name%</a>\n<br />\n<br />\n¡Hola, %Customer.FullName%!\n<br />\nPara validar tu nuevo correo, <a href=\"%Customer.EmailRevalidationURL%\">haz clic aquí</a>.\n<br />\n<br />\n%Store.Name%\n</p>\n"
+ },
+ "Customer.EmailValidationMessage": {
+  "subject": "%Store.Name%. Activa tu cuenta",
+  "body": "<a href=\"%Store.URL%\">%Store.Name%</a>\n<br />\n<br />\nPara activar tu cuenta, <a href=\"%Customer.AccountActivationURL%\">haz clic aquí</a>.\n<br />\n<br />\n%Store.Name%\n"
+ },
+ "Customer.FailedLoginAttempt": {
+  "subject": "%Store.Name%. Intento de inicio de sesión fallido",
+  "body": "<p>\nRecibes este aviso porque registramos un intento de inicio de sesión con credenciales inválidas en <a href=\"%Store.URL%\">%Store.Name%</a>.\n</p>\n"
+ },
+ "Customer.Gdpr.DeleteRequest": {
+  "subject": "%Store.Name%. Nueva solicitud de eliminación de cuenta",
+  "body": "%Customer.Email% solicitó eliminar su cuenta. Puedes revisarlo en el panel de administración."
+ },
+ "Customer.NewOrderNote": {
+  "subject": "%Store.Name%. Nueva nota en tu pedido",
+  "body": "<p>\n<a href=\"%Store.URL%\">%Store.Name%</a>\n<br />\n<br />\nHola, %Customer.FullName%:\n<br />\nSe agregó una nueva nota a tu pedido:\n<br />\n\"%Order.NewNoteText%\".\n<br />\n<a target=\"_blank\" href=\"%Order.OrderURLForCustomer%\">%Order.OrderURLForCustomer%</a>\n</p>\n"
+ },
+ "Customer.NewPM": {
+  "subject": "%Store.Name%. Recibiste un nuevo mensaje privado",
+  "body": "<p>\n<a href=\"%Store.URL%\">%Store.Name%</a>\n<br />\n<br />\nRecibiste un nuevo mensaje privado.\n</p>\n"
+ },
+ "Customer.PasswordRecovery": {
+  "subject": "%Store.Name%. Recupera tu contraseña",
+  "body": "<a href=\"%Store.URL%\">%Store.Name%</a>\n<br />\n<br />\nPara cambiar tu contraseña, <a href=\"%Customer.PasswordRecoveryURL%\">haz clic aquí</a>.\n<br />\n<br />\n%Store.Name%\n"
+ },
+ "Customer.WelcomeMessage": {
+  "subject": "Bienvenido a %Store.Name%",
+  "body": "Te damos la bienvenida a <a href=\"%Store.URL%\"> %Store.Name%</a>.\n<br />\n<br />\nAhora puedes usar los servicios que te ofrecemos, entre ellos:\n<br />\n<br />\nCarro permanente: los productos que agregues a tu carro se mantienen ahí hasta que los quites o completes la compra.\n<br />\nLibreta de direcciones: podemos despachar tus productos a otra dirección, ideal para enviar regalos directamente a quien los recibe.\n<br />\nHistorial de pedidos: revisa las compras que has hecho con nosotros.\n<br />\nOpiniones de productos: comparte tu opinión sobre los productos con otros clientes.\n<br />\n<br />\nSi necesitas ayuda con cualquiera de nuestros servicios, escríbenos a: <a href=\"mailto:%Store.Email%\">%Store.Email%</a>.\n<br />\n<br />\nNota: este correo se ingresó en nuestra página de registro. Si es tuyo y no te registraste en nuestro sitio, escríbenos a <a href=\"mailto:%Store.Email%\">%Store.Email%</a>.\n"
+ },
+ "Forums.NewForumPost": {
+  "subject": "%Store.Name%. Nuevo mensaje en el foro",
+  "body": "<p>\n<a href=\"%Store.URL%\">%Store.Name%</a>\n<br />\n<br />\nSe publicó un nuevo mensaje en el tema <a href=\"%Forums.TopicURL%\">\"%Forums.TopicName%\"</a> del foro <a href=\"%Forums.ForumURL%\">\"%Forums.ForumName%\"</a>.\n<br />\n<br />\nHaz clic <a href=\"%Forums.TopicURL%\">aquí</a> para ver más.\n<br />\n<br />\nAutor: %Forums.PostAuthor%\n<br />\nMensaje: %Forums.PostBody%\n</p>\n"
+ },
+ "Forums.NewForumTopic": {
+  "subject": "%Store.Name%. Nuevo tema en el foro",
+  "body": "<p>\n<a href=\"%Store.URL%\">%Store.Name%</a>\n<br />\n<br />\nSe creó un nuevo tema <a href=\"%Forums.TopicURL%\">\"%Forums.TopicName%\"</a> en el foro <a href=\"%Forums.ForumURL%\">\"%Forums.ForumName%\"</a>.\n<br />\n<br />\nHaz clic <a href=\"%Forums.TopicURL%\">aquí</a> para ver más.\n</p>\n"
+ },
+ "GiftCard.Notification": {
+  "subject": "%GiftCard.SenderName% te envió una tarjeta de regalo de %Store.Name%",
+  "body": "<p>\nRecibiste una tarjeta de regalo de %Store.Name%\n</p>\n<p>\nHola, %GiftCard.RecipientName%:\n<br />\n<br />\n%GiftCard.SenderName% (%GiftCard.SenderEmail%) te envió una tarjeta de regalo de %GiftCard.Amount% para <a href=\"%Store.URL%\"> %Store.Name%</a>\n</p>\n<p>\nEl código de tu tarjeta de regalo es %GiftCard.CouponCode%\n</p>\n<p>\n%GiftCard.Message%\n</p>\n"
+ },
+ "Misc.RFQ.AdminSentNewQuote.CustomerNotification": {
+  "subject": "%Store.Name%. Nueva cotización N° %Quote.Id%",
+  "body": "<p>\n<a href=\"%Store.URL%\">%Store.Name%</a>\n<br />\n<br />\nLa tienda te envió una nueva cotización.\n<br />\n<br />\nNúmero de cotización: %Quote.Id%\n<br />\nFecha de la cotización: %Quote.CreatedOn%\n<br />%if(%Quote.ExpirationOnIsSet%)Vence el: %Quote.ExpirationOn%\n<br />endif%\n<br />\nRevisa el detalle en la <a href=\"%Quote.URL%\">página de la cotización</a>\n</p>\n"
+ },
+ "Misc.RFQ.CustomerSentNewRequest.StoreOwnerNotification": {
+  "subject": "%Store.Name%. Nueva solicitud de cotización N° %RequestQuote.Id%",
+  "body": "<p>\n<a href=\"%Store.URL%\">%Store.Name%</a>\n<br />\n<br />\n%Customer.FullName% (%Customer.Email%) envió una nueva solicitud de cotización.\n<br />\n<br />\nNúmero de solicitud: %RequestQuote.Id%\n<br />\nFecha de la solicitud: %RequestQuote.CreatedOn%\n<br />\n<br />\nRevisa el detalle en la <a href=\"%RequestQuote.URL%\">página de la solicitud</a>\n</p>\n"
+ },
+ "NewCustomer.Notification": {
+  "subject": "%Store.Name%. Nuevo cliente registrado",
+  "body": "<p>\n<a href=\"%Store.URL%\">%Store.Name%</a>\n<br />\n<br />\nUn nuevo cliente se registró en tu tienda. Estos son sus datos:\n<br />\nNombre: %Customer.FullName%\n<br />\nCorreo: %Customer.Email%\n</p>\n"
+ },
+ "NewReturnRequest.CustomerNotification": {
+  "subject": "%Store.Name%. Nueva solicitud de devolución",
+  "body": "<p>\n<a href=\"%Store.URL%\">%Store.Name%</a>\n<br />\n<br />\n¡Hola, %Customer.FullName%!\n<br />\nRegistramos tu solicitud de devolución. Este es el detalle:\n<br />\nN° de solicitud: %ReturnRequest.CustomNumber%\n<br />\nProducto: %ReturnRequest.Product.Quantity% x %ReturnRequest.Product.Name%\n<br />\nMotivo de la devolución: %ReturnRequest.Reason%\n<br />\nAcción solicitada: %ReturnRequest.RequestedAction%\n<br />\nComentarios del cliente:\n<br />\n%ReturnRequest.CustomerComment%\n</p>\n"
+ },
+ "NewReturnRequest.StoreOwnerNotification": {
+  "subject": "%Store.Name%. Nueva solicitud de devolución",
+  "body": "<p>\n<a href=\"%Store.URL%\">%Store.Name%</a>\n<br />\n<br />\n%Customer.FullName% envió una nueva solicitud de devolución. Este es el detalle:\n<br />\nN° de solicitud: %ReturnRequest.CustomNumber%\n<br />\nProducto: %ReturnRequest.Product.Quantity% x %ReturnRequest.Product.Name%\n<br />\nMotivo de la devolución: %ReturnRequest.Reason%\n<br />\nAcción solicitada: %ReturnRequest.RequestedAction%\n<br />\nComentarios del cliente:\n<br />\n%ReturnRequest.CustomerComment%\n</p>\n"
+ },
+ "News.NewsComment": {
+  "subject": "%Store.Name%. Nuevo comentario en una noticia",
+  "body": "<p>\n<a href=\"%Store.URL%\">%Store.Name%</a>\n<br />\n<br />\nSe publicó un nuevo comentario en la noticia \"%NewsComment.NewsTitle%\".\n</p>\n"
+ },
+ "NewsLetterSubscription.ActivationMessage": {
+  "subject": "%Store.Name%. Confirma tu suscripción",
+  "body": "<p>\n<a href=\"%NewsLetterSubscription.ActivationUrl%\">Haz clic aquí para confirmar tu suscripción a nuestra lista.</a>\n</p>\n<p>\nSi recibiste este correo por error, simplemente elimínalo.\n</p>\n"
+ },
+ "NewsLetterSubscription.DeactivationMessage": {
+  "subject": "%Store.Name%. Anulación de tu suscripción",
+  "body": "<p>\n<a href=\"%NewsLetterSubscription.DeactivationUrl%\">Haz clic aquí para anular tu suscripción a nuestro boletín.</a>\n</p>\n<p>\nSi recibiste este correo por error, simplemente elimínalo.\n</p>\n"
+ },
+ "NewVATSubmitted.StoreOwnerNotification": {
+  "subject": "%Store.Name%. Nuevo número tributario ingresado",
+  "body": "<p>\n<a href=\"%Store.URL%\">%Store.Name%</a>\n<br />\n<br />\n%Customer.FullName% (%Customer.Email%) ingresó un nuevo número tributario. Este es el detalle:\n<br />\nNúmero tributario: %Customer.VatNumber%\n<br />\nEstado del número tributario: %Customer.VatNumberStatus%\n<br />\nNombre recibido: %VatValidationResult.Name%\n<br />\nDirección recibida: %VatValidationResult.Address%\n</p>\n"
+ },
+ "OrderCancelled.CustomerNotification": {
+  "subject": "%Store.Name%. Tu pedido fue anulado",
+  "body": "<p>\n<a href=\"%Store.URL%\">%Store.Name%</a>\n<br />\n<br />\nHola, %Order.CustomerFullName%:\n<br />\nTu pedido fue anulado. Este es el resumen del pedido.\n<br />\n<br />\nNúmero de pedido: %Order.OrderNumber%\n<br />\nDetalle del pedido: <a target=\"_blank\" href=\"%Order.OrderURLForCustomer%\">%Order.OrderURLForCustomer%</a>\n<br />\nFecha del pedido: %Order.CreatedOn%\n<br />\n<br />\n<br />\n<br />\nDirección de facturación\n<br />\n%Order.BillingFirstName% %Order.BillingLastName%\n<br />\n%Order.BillingAddress1%\n<br />\n%Order.BillingAddress2%\n<br />\n%Order.BillingCity% %Order.BillingZipPostalCode%\n<br />\n%Order.BillingStateProvince% %Order.BillingCountry%\n<br />\n<br />\n<br />\n<br />\n%if (%Order.Shippable%) Dirección de despacho\n<br />\n%Order.ShippingFirstName% %Order.ShippingLastName%\n<br />\n%Order.ShippingAddress1%\n<br />\n%Order.ShippingAddress2%\n<br />\n%Order.ShippingCity% %Order.ShippingZipPostalCode%\n<br />\n%Order.ShippingStateProvince% %Order.ShippingCountry%\n<br />\n<br />\nMétodo de envío: %Order.ShippingMethod%\n<br />\n<br />\n endif% %Order.Product(s)%\n</p>\n"
+ },
+ "OrderCancelled.StoreOwnerNotification": {
+  "subject": "%Store.Name%. Pedido N° %Order.OrderNumber% anulado",
+  "body": "<p>\n<a href=\"%Store.URL%\">%Store.Name%</a>\n<br />\n<br />\nEl cliente anuló el pedido N° %Order.OrderNumber%.\n<br />\nCliente: %Order.CustomerFullName%,\n<br />\n<br />\n<br />\nNúmero de pedido: %Order.OrderNumber%\n<br />\nFecha del pedido: %Order.CreatedOn%\n<br />\n<br />\n%Order.Product(s)%\n</p>\n"
+ },
+ "OrderCancelled.VendorNotification": {
+  "subject": "%Store.Name%. Pedido N° %Order.OrderNumber% anulado",
+  "body": "<p>\n<a href=\"%Store.URL%\">%Store.Name%</a>\n<br />\n<br />\nEl pedido N° %Order.OrderNumber% fue anulado.\n<br />\nCliente: %Order.CustomerFullName%,\n<br />\n<br />\n<br />\nNúmero de pedido: %Order.OrderNumber%\n<br />\nFecha del pedido: %Order.CreatedOn%\n<br />\n<br />\n%Order.Product(s)%\n</p>\n"
+ },
+ "OrderCompleted.CustomerNotification": {
+  "subject": "%Store.Name%. Tu pedido fue completado",
+  "body": "<p>\n<a href=\"%Store.URL%\">%Store.Name%</a>\n<br />\n<br />\nHola, %Order.CustomerFullName%:\n<br />\nTu pedido fue completado. Este es el resumen del pedido.\n<br />\n<br />\nNúmero de pedido: %Order.OrderNumber%\n<br />\nDetalle del pedido: <a target=\"_blank\" href=\"%Order.OrderURLForCustomer%\">%Order.OrderURLForCustomer%</a>\n<br />\nFecha del pedido: %Order.CreatedOn%\n<br />\n<br />\n<br />\n<br />\nDirección de facturación\n<br />\n%Order.BillingFirstName% %Order.BillingLastName%\n<br />\n%Order.BillingAddress1%\n<br />\n%Order.BillingAddress2%\n<br />\n%Order.BillingCity% %Order.BillingZipPostalCode%\n<br />\n%Order.BillingStateProvince% %Order.BillingCountry%\n<br />\n<br />\n<br />\n<br />\n%if (%Order.Shippable%) Dirección de despacho\n<br />\n%Order.ShippingFirstName% %Order.ShippingLastName%\n<br />\n%Order.ShippingAddress1%\n<br />\n%Order.ShippingAddress2%\n<br />\n%Order.ShippingCity% %Order.ShippingZipPostalCode%\n<br />\n%Order.ShippingStateProvince% %Order.ShippingCountry%\n<br />\n<br />\nMétodo de envío: %Order.ShippingMethod%\n<br />\n<br />\n endif% %Order.Product(s)%\n</p>\n"
+ },
+ "OrderPlaced.CustomerNotification": {
+  "subject": "Recibimos tu pedido en %Store.Name%",
+  "body": "<p>\n<a href=\"%Store.URL%\">%Store.Name%</a>\n<br />\n<br />\nHola, %Order.CustomerFullName%:\n<br />\nGracias por comprar en <a href=\"%Store.URL%\">%Store.Name%</a>. Este es el resumen de tu pedido.\n<br />\n<br />\nNúmero de pedido: %Order.OrderNumber%\n<br />\nDetalle del pedido: <a target=\"_blank\" href=\"%Order.OrderURLForCustomer%\">%Order.OrderURLForCustomer%</a>\n<br />\nFecha del pedido: %Order.CreatedOn%\n<br />\n<br />\n<br />\n<br />\nDirección de facturación\n<br />\n%Order.BillingFirstName% %Order.BillingLastName%\n<br />\n%Order.BillingAddress1%\n<br />\n%Order.BillingAddress2%\n<br />\n%Order.BillingCity% %Order.BillingZipPostalCode%\n<br />\n%Order.BillingStateProvince% %Order.BillingCountry%\n<br />\n<br />\n<br />\n<br />\n%if (%Order.Shippable%) Dirección de despacho\n<br />\n%Order.ShippingFirstName% %Order.ShippingLastName%\n<br />\n%Order.ShippingAddress1%\n<br />\n%Order.ShippingAddress2%\n<br />\n%Order.ShippingCity% %Order.ShippingZipPostalCode%\n<br />\n%Order.ShippingStateProvince% %Order.ShippingCountry%\n<br />\n<br />\nMétodo de envío: %Order.ShippingMethod%\n<br />\n<br />\n endif% %Order.Product(s)%\n</p>\n"
+ },
+ "OrderPlaced.StoreOwnerNotification": {
+  "subject": "%Store.Name%. Nuevo pedido N° %Order.OrderNumber%",
+  "body": "<p>\n<a href=\"%Store.URL%\">%Store.Name%</a>\n<br />\n<br />\n%Order.CustomerFullName% (%Order.CustomerEmail%) hizo un pedido en tu tienda. Este es el resumen del pedido.\n<br />\n<br />\nNúmero de pedido: %Order.OrderNumber%\n<br />\nFecha del pedido: %Order.CreatedOn%\n<br />\n<br />\n<br />\n<br />\nDirección de facturación\n<br />\n%Order.BillingFirstName% %Order.BillingLastName%\n<br />\n%Order.BillingAddress1%\n<br />\n%Order.BillingAddress2%\n<br />\n%Order.BillingCity% %Order.BillingZipPostalCode%\n<br />\n%Order.BillingStateProvince% %Order.BillingCountry%\n<br />\n<br />\n<br />\n<br />\n%if (%Order.Shippable%) Dirección de despacho\n<br />\n%Order.ShippingFirstName% %Order.ShippingLastName%\n<br />\n%Order.ShippingAddress1%\n<br />\n%Order.ShippingAddress2%\n<br />\n%Order.ShippingCity% %Order.ShippingZipPostalCode%\n<br />\n%Order.ShippingStateProvince% %Order.ShippingCountry%\n<br />\n<br />\nMétodo de envío: %Order.ShippingMethod%\n<br />\n<br />\n endif% %Order.Product(s)%\n</p>\n"
+ },
+ "Product.ProductReview": {
+  "subject": "%Store.Name%. Nueva opinión de producto",
+  "body": "<p>\n<a href=\"%Store.URL%\">%Store.Name%</a>\n<br />\n<br />\nSe escribió una nueva opinión del producto \"%ProductReview.ProductName%\".\n</p>\n"
+ },
+ "QuantityBelow.AttributeCombination.StoreOwnerNotification": {
+  "subject": "%Store.Name%. Poco stock: %Product.Name%",
+  "body": "<p>\n<a href=\"%Store.URL%\">%Store.Name%</a>\n<br />\n<br />\n%Product.Name% (ID: %Product.ID%) tiene poco stock.\n<br />\n%AttributeCombination.Formatted%\n<br />\nCantidad: %AttributeCombination.StockQuantity%\n<br />\n</p>\n"
+ },
+ "QuantityBelow.AttributeCombination.VendorNotification": {
+  "subject": "%Store.Name%. Poco stock: %Product.Name%",
+  "body": "<p>\n<a href=\"%Store.URL%\">%Store.Name%</a>\n<br />\n<br />\n%Product.Name% (ID: %Product.ID%) tiene poco stock.\n<br />\n%AttributeCombination.Formatted%\n<br />\nCantidad: %AttributeCombination.StockQuantity%\n<br />\n</p>\n"
+ },
+ "QuantityBelow.StoreOwnerNotification": {
+  "subject": "%Store.Name%. Poco stock: %Product.Name%",
+  "body": "<p>\n<a href=\"%Store.URL%\">%Store.Name%</a>\n<br />\n<br />\n%Product.Name% (ID: %Product.ID%) tiene poco stock.\n<br />\n<br />\nCantidad: %Product.StockQuantity%\n<br />\n</p>\n"
+ },
+ "QuantityBelow.VendorNotification": {
+  "subject": "%Store.Name%. Poco stock: %Product.Name%",
+  "body": "<p>\n<a href=\"%Store.URL%\">%Store.Name%</a>\n<br />\n<br />\n%Product.Name% (ID: %Product.ID%) tiene poco stock.\n<br />\n<br />\nCantidad: %Product.StockQuantity%\n<br />\n</p>\n"
+ },
+ "RecurringPaymentCancelled.CustomerNotification": {
+  "subject": "%Store.Name%. Pago recurrente anulado",
+  "body": "<p>\n<a href=\"%Store.URL%\">%Store.Name%</a>\n<br />\n<br />\nHola, %Customer.FullName%:\n<br />\n%if (%RecurringPayment.CancelAfterFailedPayment%) No pudimos cobrar este pago recurrente (<a href=\"%Order.OrderURLForCustomer%\" target=\"_blank\">%Order.OrderURLForCustomer%</a>)\n<br />\npor lo que tu suscripción fue anulada. endif% %if (!%RecurringPayment.CancelAfterFailedPayment%) El pago recurrente ID=%RecurringPayment.ID% fue anulado. endif%\n</p>\n"
+ },
+ "RecurringPaymentCancelled.StoreOwnerNotification": {
+  "subject": "%Store.Name%. Pago recurrente anulado",
+  "body": "<p>\n<a href=\"%Store.URL%\">%Store.Name%</a>\n<br />\n<br />\n%if (%RecurringPayment.CancelAfterFailedPayment%) El último cobro del pago recurrente ID=%RecurringPayment.ID% falló, por lo que fue anulado. endif% %if (!%RecurringPayment.CancelAfterFailedPayment%) %Customer.FullName% (%Customer.Email%) anuló el pago recurrente ID=%RecurringPayment.ID%. endif%\n</p>\n"
+ },
+ "RecurringPaymentFailed.CustomerNotification": {
+  "subject": "%Store.Name%. Falló el último pago recurrente",
+  "body": "<p>\n<a href=\"%Store.URL%\">%Store.Name%</a>\n<br />\n<br />\nHola, %Customer.FullName%:\n<br />\nNo pudimos cobrar este pago recurrente (<a href=\"%Order.OrderURLForCustomer%\" target=\"_blank\">%Order.OrderURLForCustomer%</a>)\n<br /> %if (%RecurringPayment.RecurringPaymentType% == \"Manual\") \nPuedes reintentar el pago o anularlo en tu historial de pedidos. endif% %if (%RecurringPayment.RecurringPaymentType% == \"Automatic\") \nIntentaremos cobrarlo de nuevo; también puedes anularlo en tu historial de pedidos. endif%\n</p>\n"
+ },
+ "ReturnRequestStatusChanged.CustomerNotification": {
+  "subject": "%Store.Name%. Cambió el estado de tu solicitud de devolución",
+  "body": "<p>\n<a href=\"%Store.URL%\">%Store.Name%</a>\n<br />\n<br />\nHola, %Customer.FullName%:\n<br />\nTu solicitud de devolución N° %ReturnRequest.CustomNumber% cambió de estado.\n</p>\n"
+ },
+ "Service.ContactUs": {
+  "subject": "%Store.Name%. Contacto",
+  "body": "<p>\n%ContactUs.Body%\n</p>\n"
+ },
+ "Service.ContactVendor": {
+  "subject": "%Store.Name%. Contacto",
+  "body": "<p>\n%ContactUs.Body%\n</p>\n"
+ },
+ "Service.EmailAFriend": {
+  "subject": "%Store.Name%. Te recomendaron un producto",
+  "body": "<p>\n<a href=\"%Store.URL%\"> %Store.Name%</a>\n<br />\n<br />\n%EmailAFriend.Email% estaba comprando en %Store.Name% y quiso compartir contigo este producto.\n<br />\n<br />\n<b><a target=\"_blank\" href=\"%Product.ProductURLForCustomer%\">%Product.Name%</a></b>\n<br />\n%Product.ShortDescription%\n<br />\n<br />\nPara ver más, haz clic <a target=\"_blank\" href=\"%Product.ProductURLForCustomer%\">aquí</a>\n<br />\n<br />\n<br />\n%EmailAFriend.PersonalMessage%\n<br />\n<br />\n%Store.Name%\n</p>\n"
+ },
+ "ShipmentDelivered.CustomerNotification": {
+  "subject": "Tu pedido de %Store.Name% fue entregado%if (!%Order.IsCompletelyDelivered%) parcialmente endif%",
+  "body": "<p>\n<a href=\"%Store.URL%\"> %Store.Name%</a>\n<br />\n<br />\nHola, %Order.CustomerFullName%:\n<br />\n¡Buenas noticias! Tu pedido fue entregado%if (!%Order.IsCompletelyDelivered%) parcialmente endif%.\n<br />\nNúmero de pedido: %Order.OrderNumber%\n<br />\nDetalle del pedido: <a href=\"%Order.OrderURLForCustomer%\" target=\"_blank\">%Order.OrderURLForCustomer%</a>\n<br />\nFecha del pedido: %Order.CreatedOn%\n<br />\n<br />\n<br />\n<br />\nDirección de facturación\n<br />\n%Order.BillingFirstName% %Order.BillingLastName%\n<br />\n%Order.BillingAddress1%\n<br />\n%Order.BillingAddress2%\n<br />\n%Order.BillingCity% %Order.BillingZipPostalCode%\n<br />\n%Order.BillingStateProvince% %Order.BillingCountry%\n<br />\n<br />\n<br />\n<br />\n%if (%Order.Shippable%) Dirección de despacho\n<br />\n%Order.ShippingFirstName% %Order.ShippingLastName%\n<br />\n%Order.ShippingAddress1%\n<br />\n%Order.ShippingAddress2%\n<br />\n%Order.ShippingAddress2%\n<br />\n%Order.ShippingCity% %Order.ShippingZipPostalCode%\n<br />\n%Order.ShippingStateProvince% %Order.ShippingCountry%\n<br />\n<br />\nMétodo de envío: %Order.ShippingMethod%\n<br />\n<br />\n endif% Productos entregados:\n<br />\n<br />\n%Shipment.Product(s)%\n</p>\n"
+ },
+ "ShipmentReadyForPickup.CustomerNotification": {
+  "subject": "Tu pedido de %Store.Name% está listo para retiro%if (!%Order.IsCompletelyReadyForPickup%) (parcialmente) endif%",
+  "body": "<p>\n<a href=\"%Store.URL%\"> %Store.Name%</a>\n<br />\n<br />\nHola, %Order.CustomerFullName%:\n<br />\n¡Buenas noticias! Tu pedido está listo para retiro%if (!%Order.IsCompletelyReadyForPickup%) (parcialmente) endif%.\n<br />\nNúmero de pedido: %Order.OrderNumber%\n<br />\nDetalle del pedido: <a href=\"%Order.OrderURLForCustomer%\" target=\"_blank\">%Order.OrderURLForCustomer%</a>\n<br />\nFecha del pedido: %Order.CreatedOn%\n<br />\n<br />\n<br />\n<br />\nDirección de facturación\n<br />\n%Order.BillingFirstName% %Order.BillingLastName%\n<br />\n%Order.BillingAddress1%\n<br />\n%Order.BillingAddress2%\n<br />\n%Order.BillingCity% %Order.BillingZipPostalCode%\n<br />\n%Order.BillingStateProvince% %Order.BillingCountry%\n<br />\n<br />\n<br />\n<br />\n%if (%Order.Shippable%) Dirección de despacho\n<br />\n%Order.ShippingFirstName% %Order.ShippingLastName%\n<br />\n%Order.ShippingAddress1%\n<br />\n%Order.ShippingAddress2%\n<br />\n%Order.ShippingCity% %Order.ShippingZipPostalCode%\n<br />\n%Order.ShippingStateProvince% %Order.ShippingCountry%\n<br />\n<br />\nMétodo de envío: %Order.ShippingMethod%\n<br />\n<br />\n endif% Productos listos para retiro:\n<br />\n<br />\n%Shipment.Product(s)%\n</p>\n"
+ },
+ "ShipmentSent.CustomerNotification": {
+  "subject": "Tu pedido de %Store.Name% fue despachado%if (!%Order.IsCompletelyShipped%) parcialmente endif%",
+  "body": "<p>\n<a href=\"%Store.URL%\"> %Store.Name%</a>\n<br />\n<br />\nHola, %Order.CustomerFullName%:\n<br />\n¡Buenas noticias! Tu pedido fue despachado%if (!%Order.IsCompletelyShipped%) parcialmente endif%.\n<br />\nNúmero de pedido: %Order.OrderNumber%\n<br />\nDetalle del pedido: <a href=\"%Order.OrderURLForCustomer%\" target=\"_blank\">%Order.OrderURLForCustomer%</a>\n<br />\nFecha del pedido: %Order.CreatedOn%\n<br />\n<br />\n<br />\n<br />\nDirección de facturación\n<br />\n%Order.BillingFirstName% %Order.BillingLastName%\n<br />\n%Order.BillingAddress1%\n<br />\n%Order.BillingAddress2%\n<br />\n%Order.BillingCity% %Order.BillingZipPostalCode%\n<br />\n%Order.BillingStateProvince% %Order.BillingCountry%\n<br />\n<br />\n<br />\n<br />\n%if (%Order.Shippable%) Dirección de despacho\n<br />\n%Order.ShippingFirstName% %Order.ShippingLastName%\n<br />\n%Order.ShippingAddress1%\n<br />\n%Order.ShippingAddress2%\n<br />\n%Order.ShippingCity% %Order.ShippingZipPostalCode%\n<br />\n%Order.ShippingStateProvince% %Order.ShippingCountry%\n<br />\n<br />\nMétodo de envío: %Order.ShippingMethod%\n<br />\n<br />\n endif% Productos despachados:\n<br />\n<br />\n%Shipment.Product(s)%\n</p>\n"
+ },
+ "VendorAccountApply.StoreOwnerNotification": {
+  "subject": "%Store.Name%. Nueva solicitud de cuenta de vendedor",
+  "body": "<p>\n<a href=\"%Store.URL%\">%Store.Name%</a>\n<br />\n<br />\n%Customer.FullName% (%Customer.Email%) solicitó una cuenta de vendedor. Este es el detalle:\n<br />\nNombre del vendedor: %Vendor.Name%\n<br />\nCorreo del vendedor: %Vendor.Email%\n<br />\n<br />\nPuedes activarla en el panel de administración.\n</p>\n"
+ },
+ "VendorInformationChange.StoreOwnerNotification": {
+  "subject": "%Store.Name%. Un vendedor actualizó sus datos",
+  "body": "<p>\n<a href=\"%Store.URL%\">%Store.Name%</a>\n<br />\n<br />\nEl vendedor %Vendor.Name% (%Vendor.Email%) actualizó sus datos.\n</p>\n"
+ },
+ "Wishlist.EmailAFriend": {
+  "subject": "%Store.Name%. Te compartieron una lista de deseos",
+  "body": "<p>\n<a href=\"%Store.URL%\"> %Store.Name%</a>\n<br />\n<br />\n%Wishlist.Email% estaba comprando en %Store.Name% y quiso compartir contigo su lista de deseos.\n<br />\n<br />\n<br />\nPara ver más, haz clic <a target=\"_blank\" href=\"%Wishlist.URLForCustomer%\">aquí</a>\n<br />\n<br />\n<br />\n%Wishlist.PersonalMessage%\n<br />\n<br />\n%Store.Name%\n</p>\n"
+ }
+}

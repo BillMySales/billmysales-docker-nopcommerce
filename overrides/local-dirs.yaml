@@ -1,0 +1,37 @@
+# Keep the stack's data in local directories instead of named volumes, so it
+# is visible from the host (and easy to include in host-level backups).
+#
+# In .env:
+#   COMPOSE_FILE=compose.yaml:overrides/local-dirs.yaml
+#   DATA_DIR=./data        # optional, default ./data (relative to compose.yaml)
+#
+# Only the directories you keep here change; delete the lines you don't need
+# (e.g. keep just `app_data`, `uploaded` and `backups`). Existing data in the
+# named volumes is NOT moved: switch before the first `up`, or restore a
+# backup afterwards. `setup` copies the image's App_Data files into
+# `app_data` and gives `app_data`, `uploaded` and `thumbs` to the .NET
+# image's app user (UID 1654) on every run, also on Linux. Backup files are
+# root-owned with mode 0600.
+
+x-nop-dirs: &nop-dirs
+  - ${DATA_DIR:-./data}/app_data:/app/App_Data
+  - ${DATA_DIR:-./data}/uploaded:/app/wwwroot/images/uploaded
+  - ${DATA_DIR:-./data}/thumbs:/app/wwwroot/images/thumbs
+
+services:
+  db:
+    volumes:
+      - ${DATA_DIR:-./data}/db:/var/lib/postgresql
+  setup:
+    volumes: *nop-dirs
+  nop:
+    volumes: *nop-dirs
+  caddy:
+    volumes:
+      - ${DATA_DIR:-./data}/caddy/data:/data
+      - ${DATA_DIR:-./data}/caddy/config:/config
+  backup:
+    volumes:
+      - ${DATA_DIR:-./data}/app_data:/data/app_data
+      - ${DATA_DIR:-./data}/uploaded:/data/uploaded
+      - ${DATA_DIR:-./data}/backups:/backups
