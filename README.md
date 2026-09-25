@@ -267,10 +267,15 @@ Notes:
   prices is shown as "Impuestos" in carts and emails.
 - The installer page (`/install`) is not published by Caddy (it only answers
   before the installation anyway).
-- nopCommerce builds picture URLs from the host of the request and caches
-  them: the healthchecks request `/robots.txt`, not a page, so internal
-  requests (`localhost:8080`) never fill that cache (they did, and every
-  visitor got `http://localhost:8080/...` images).
+- nopCommerce builds absolute picture URLs from the host of the request and
+  caches them (every visitor got `http://localhost:8080/...` images after a
+  healthcheck, and one request with a forged `Host` gave everyone that host's
+  images). `setup` sets relative image URLs
+  (`mediasettings.useabsoluteimagepath` = False) on every run, Caddy only
+  passes on `NOP_HOST`, `NOP_EXTRA_HOSTS` and loopback names (other hosts:
+  HTTP 400), and the healthchecks request `/robots.txt`, not a page. The
+  sample slider's links, stored by the installer with setup's internal URL
+  (`http://127.0.0.1:8080/`), are made relative.
 - nopCommerce's license (nopCommerce Public License 4.0) requires the
   "Powered by nopCommerce" link in the store footer unless you buy its
   removal.
@@ -286,6 +291,8 @@ Security
   development) publishes ports; nopCommerce and PostgreSQL are internal.
   `HTTP_BIND` defaults to `127.0.0.1`.
 - Only one payment method is enabled (no card data stored by the store).
+- Host header: see the notes above (forged hosts are refused by Caddy;
+  emails use the store URL, not the request's host).
 - Not included: a web application firewall or off-site backup copies.
 
 Validation
@@ -297,7 +304,7 @@ What was checked for this stack (2026-09-25):
   every service `healthy`, `setup` `Exited (0)`; a second run makes no
   changes; a database password with `;` and `"` works.
 - Store in Spanish (`lang="es"`, title, all CSS/JS and images, including
-  the absolute picture URLs, after the healthchecks ran), admin login
+  relative picture URLs; a forged `Host` gets HTTP 400), admin login
   (form with antiforgery token), dashboard and its assets; a product created
   through the admin form; guest one-page checkout (billing, "Despacho",
   "Transferencia bancaria"): 2 × $9.990 = $19.980 with $3.190 IVA

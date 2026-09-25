@@ -26,6 +26,15 @@
 	header ?Referrer-Policy strict-origin-when-cross-origin
 	header -Server
 
+	# Only the store's host (NOP_HOST, NOP_EXTRA_HOSTS) and loopback names
+	# (the healthcheck): nopCommerce builds URLs from the request's Host and
+	# caches pages, so one request with a forged Host served its image URLs
+	# to every visitor.
+	@foreign not host {$NOP_HOST} {$NOP_EXTRA_HOSTS} localhost 127.0.0.1
+	handle @foreign {
+		respond 400
+	}
+
 	# The installer only answers before the installation; never publish it.
 	@install path /install /install/*
 	handle @install {

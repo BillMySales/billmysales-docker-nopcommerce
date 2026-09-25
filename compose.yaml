@@ -161,6 +161,9 @@ services:
     environment:
       SITE_ADDRESS: ${SITE_ADDRESS:-:80}
       UPLOAD_MAX_SIZE: ${UPLOAD_MAX_SIZE:-32M}
+      # Hosts Caddy passes on to nopCommerce (others get HTTP 400).
+      NOP_HOST: ${NOP_HOST:?Set NOP_HOST in .env (the host of NOP_URL)}
+      NOP_EXTRA_HOSTS: ${NOP_EXTRA_HOSTS:-}
     ports:
       - "${HTTP_BIND:-127.0.0.1}:${HTTP_PORT:-80}:80"
       - "${HTTP_BIND:-127.0.0.1}:${HTTPS_PORT:-443}:443"

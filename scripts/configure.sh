@@ -16,7 +16,12 @@
 #   postal codes, Spanish email templates (config/nopcommerce).
 #   Later changes in the admin are kept.
 # - Every run: the store URL (NOP_URL) and the SMTP account (SMTP_*; also
-#   emails per run of the send task, 0 on a fresh install = none sent).
+#   emails per run of the send task, 0 on a fresh install = none sent);
+#   relative image URLs (nopCommerce builds absolute ones from the request's
+#   Host and caches them: a request with another Host, even the internal
+#   healthcheck's, gave every visitor its image URLs); the sample slider's
+#   links, which the installer stores with setup's internal URL, made
+#   relative.
 set -eu
 
 sql_quote() { printf "'%s'" "$(printf '%s' "$1" | sed "s/'/''/g")"; }
@@ -131,6 +136,9 @@ fi
 cat >> "${sql}" <<SQL
 UPDATE "Store" SET "Url" = $(sql_quote "${url}"), "SslEnabled" = ${ssl}
     WHERE "Id" = (SELECT min("Id") FROM "Store");
+$(set_setting mediasettings.useabsoluteimagepath False)
+UPDATE "Setting" SET "Value" = replace("Value", '"LinkUrl":"http://127.0.0.1:8080/', '"LinkUrl":"/')
+    WHERE "Name" = 'swipersettings.slides' AND "Value" LIKE '%"LinkUrl":"http://127.0.0.1:8080/%';
 UPDATE "EmailAccount" SET
     "Email" = $(sql_quote "${SMTP_FROM:-noreply@example.com}"),
     "DisplayName" = $(sql_quote "${SMTP_FROM_NAME:-${NOP_STORE_NAME}}"),
