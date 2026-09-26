@@ -59,8 +59,9 @@ Production
 
 ```shell
 cp .env.prod.example .env
-# Fill in NOP_URL, NOP_HOST, SITE_ADDRESS, DB_PASSWORD, NOP_ADMIN_EMAIL,
-# NOP_ADMIN_PASSWORD and the SMTP_* values.
+# Required: NOP_URL, NOP_HOST, SITE_ADDRESS, DB_PASSWORD, NOP_ADMIN_EMAIL,
+# NOP_ADMIN_PASSWORD.
+# Recommended: the SMTP_* values (without SMTP_HOST no emails are sent).
 docker compose up -d --build
 ```
 
@@ -102,8 +103,10 @@ comes from `DB_*` on every start (`scripts/entrypoint.sh`), not from
   starts it on `127.0.0.1:8080` inside the container and submits its
   installation form (`/install`) like a browser (antiforgery token included):
   PostgreSQL, the admin user, no sample data, country and culture
-  `NOP_COUNTRY_CULTURE` (`CL-es-CL`: Spanish language pack, CLP, Chile), no
-  newsletter subscription. nopCommerce counts as installed once it has a
+  `NOP_COUNTRY_CULTURE` (default `CL-es-CL`: Spanish language pack, CLP,
+  Chile; the installer always adds English and USD too), no newsletter
+  subscription. A value missing from the installer's country list stops
+  `setup` before installing (the installer would silently use en-US). nopCommerce counts as installed once it has a
   connection string, so this start runs without
   `ConnectionStrings__ConnectionString` in its environment. Then starts it
   once more: nopCommerce installs its
@@ -115,16 +118,23 @@ comes from `DB_*` on every start (`scripts/entrypoint.sh`), not from
   upgrade stops `setup`.
 - `scripts/configure.sh` (SQL in nopCommerce's tables, while it's stopped:
   it caches settings):
-  - once (then kept as edited in the admin): store name and title, Spanish as
-    the only published language, CLP as the primary currency (the others
-    unpublished), time zone, prices including tax with tax categories
-    "Afecto" (IVA 19%) and "Exento" (replacing the installer's Books,
-    Apparel...), a single "Despacho" shipping method, only the "Check / money
-    order" payment method renamed "Transferencia bancaria" with Spanish
-    instructions (the installer also enables PayPal, unconfigured, and
-    "Manual", which stores card numbers), optional postal codes, and Spanish
-    email templates.
-  - every run: the store URL (`NOP_URL`) and the SMTP account (`SMTP_*`).
+  - once (then kept as edited in the admin): store name and title, the
+    culture's language as the only published one (English, with a warning,
+    when its pack couldn't be downloaded), the country's currency as the
+    primary one (the others unpublished), time zone (`TIMEZONE`), prices
+    including tax or not, two tax categories (`NOP_TAX_RATE` for the first)
+    replacing the installer's Books, Apparel..., a single free shipping
+    method, only the "Check / money order" payment method (the installer
+    also enables PayPal, unconfigured, and "Manual", which stores card
+    numbers). With a Spanish culture: "Afecto"/"Exento", "Despacho", the
+    payment method renamed "Transferencia bancaria" with Spanish
+    instructions, and Spanish email templates; other cultures get
+    "Taxable"/"Exempt", "Shipping" and the installer's payment texts. For
+    Chile (`CL-*`), optional postal codes. Tested with `CL-es-CL`,
+    `US-en-US`, `ES-es-ES` and `DE-de-DE`.
+  - every run: the store URL (`NOP_URL`) and the SMTP account (`SMTP_*`;
+    the sender name defaults to `NOP_STORE_NAME`, the address to
+    `noreply@example.com`).
     The app container gets the same variables, so a change recreates it after
     `setup`.
 
@@ -164,13 +174,15 @@ Emails
 
 nopCommerce queues emails and the "Send emails" task sends them every
 minute through the store's email account, written from `SMTP_*` on every run
-(`SMTP_SECURE`: `tls` or empty = STARTTLS when the server offers it, `ssl` =
-SMTPS, `none`). `SMTP_FROM` is also where store owner notifications (new
-orders...) go. The installer creates that account with a limit of 0 emails
+(`SMTP_SECURE`: `tls`, the default, = STARTTLS when the server offers it,
+`ssl` = SMTPS, `none`). Without `SMTP_HOST` emails stay queued: SMTP is
+recommended, not required. `SMTP_FROM` is also where store owner
+notifications (new orders...) go. The installer creates that account with a limit of 0 emails
 per run, so nothing would ever be sent; `setup` sets 50.
 
 The language pack translates the store and the admin but not the email
-templates: `setup` writes Spanish subjects and bodies for the 46 active
+templates: with a Spanish culture (and `NOP_EMAILS_SPANISH=true`), `setup`
+writes Spanish subjects and bodies for the 46 active
 templates (`config/nopcommerce/message-templates.es.json`) into the
 templates themselves, once (with a single published language nopCommerce
 ignores per-language template translations). Edit them in the admin
@@ -253,12 +265,13 @@ Configuration
 Every variable is documented in `.env.prod.example`. Main groups:
 
 - **Site and network**: `NOP_URL`, `NOP_HOST`, `SITE_ADDRESS`, `HTTP_BIND`,
-  `HTTP_PORT`, `HTTPS_PORT`, `TIMEZONE`.
+  `HTTP_PORT`, `HTTPS_PORT`, `TIMEZONE` (the containers' time zone on every
+  start; the store's time zone setting only on the first install).
 - **Credentials**: `DB_PASSWORD`, `NOP_ADMIN_EMAIL`, `NOP_ADMIN_PASSWORD`
-  (required).
-- **Store** (first install only): `NOP_STORE_NAME`, `NOP_COUNTRY_CULTURE`,
-  `NOP_TAX_RATE`, `NOP_TAX_NAME`, `NOP_PRICES_INCLUDE_TAX`,
-  `NOP_EMAILS_SPANISH`.
+  (required; the admin values are only used by the installer).
+- **Store** (first install only): `NOP_STORE_NAME` (also the default email
+  sender name, on every run), `NOP_COUNTRY_CULTURE`, `NOP_TAX_RATE`,
+  `NOP_PRICES_INCLUDE_TAX`, `NOP_EMAILS_SPANISH`.
 - **Versions**: `NOP_VERSION`, `DOTNET_VERSION`, `POSTGRES_VERSION`,
   `CADDY_VERSION`, ...
 - **Mail**: `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`,
@@ -325,6 +338,12 @@ What was checked for this stack (2026-09-25):
 - Emails through SMTP to Mailpit in Spanish (order receipt to the customer,
   new order to the store), with links to `NOP_URL`; scheduled tasks
   running through `NOP_HOST`.
+- Other cultures (2026-09-26, image rebuilt with `--no-cache --pull`, each
+  on a new database): `US-en-US` (English, USD, "Taxable"/"Exempt"),
+  `ES-es-ES` (Spanish texts and emails, EUR, postal code required),
+  `DE-de-DE` (German pack, EUR, English names); `DE-de-DE` without access
+  to nopcommerce.com falls back to English with a warning; `XX-xx-XX` stops
+  `setup` before installing, and the next `up` with a valid value installs.
 - Backup and restore (an order created after the backup is gone; uploads
   and DataProtection keys back: an admin session from before the backup
   still works).

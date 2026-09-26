@@ -6,15 +6,20 @@
 # container gets the same variables, so a change also recreates it.
 #
 # - Once (marker setting docker_stack.initialized), adapting the installer's
-#   defaults (the installer already sets up the es-CL language, CLP and
-#   Chile): store name and titles, Spanish as the default language, CLP as the primary
-#   currency (the others unpublished), time zone, prices including IVA with
-#   tax categories "Afecto" (NOP_TAX_RATE) and "Exento" instead of the
-#   installer's (Books, Apparel...), only the "Check / money order" payment
-#   method, renamed "Transferencia bancaria" (the installer also enables
-#   PayPal, unconfigured, and "Manual", which stores card numbers), one free "Despacho" shipping method, optional
-#   postal codes, Spanish email templates (config/nopcommerce).
-#   Later changes in the admin are kept.
+#   defaults (the installer creates English and USD, plus the language,
+#   currency and country of NOP_COUNTRY_CULTURE; the language's pack is
+#   downloaded from nopcommerce.com): store name and titles, the culture's
+#   language as the only published one (English when its pack couldn't be
+#   installed), the country's currency as the primary one (the others
+#   unpublished), time zone, prices including tax or not, tax categories
+#   "Afecto" (NOP_TAX_RATE) and "Exento" instead of the installer's (Books,
+#   Apparel...), only the "Check / money order" payment method (the
+#   installer also enables PayPal, unconfigured, and "Manual", which stores
+#   card numbers), one free shipping method. With a Spanish culture, also:
+#   Spanish names ("Despacho", the payment method as "Transferencia
+#   bancaria") and email templates (config/nopcommerce); English names
+#   ("Taxable", "Exempt", "Shipping") otherwise. For Chile (CL), postal
+#   codes optional. Later changes in the admin are kept.
 # - Every run: the store URL (NOP_URL) and the SMTP account (SMTP_*; also
 #   emails per run of the send task, 0 on a fresh install = none sent);
 #   relative image URLs (nopCommerce builds absolute ones from the request's
@@ -57,37 +62,55 @@ echo "BEGIN;" > "${sql}"
 
 initialized="$(query "SELECT count(*) FROM \"Setting\" WHERE \"Name\" = 'docker_stack.initialized'")"
 if [ "${initialized}" = 0 ]; then
-    echo "Initial store settings (${NOP_STORE_NAME}, CLP, IVA ${NOP_TAX_RATE:-0}%)"
+    # NOP_COUNTRY_CULTURE: country-culture, e.g. CL-es-CL (checked by setup.sh).
+    country="${NOP_COUNTRY_CULTURE%%-*}"
+    culture="${NOP_COUNTRY_CULTURE#*-}"
     # Separate assignments: with `set -e`, a failing query stops here.
-    lang_es="$(query "SELECT \"Id\" FROM \"Language\" WHERE \"LanguageCulture\" LIKE 'es-%' ORDER BY \"Id\" LIMIT 1")"
-    clp="$(query "SELECT \"Id\" FROM \"Currency\" WHERE \"CurrencyCode\" = 'CLP'")"
-    if [ -z "${lang_es}" ] || [ -z "${clp}" ]; then
-        echo "The installer didn't create the es-CL language or CLP (NOP_COUNTRY_CULTURE)" >&2
+    # The culture's language if its pack was installed (thousands of
+    # resources; without it the store would show resource names), else English.
+    lang="$(query "SELECT l.\"Id\" FROM \"Language\" l WHERE l.\"LanguageCulture\" IN ($(sql_quote "${culture}"), 'en-US')
+        ORDER BY (l.\"LanguageCulture\" = $(sql_quote "${culture}")
+            AND (SELECT count(*) FROM \"LocaleStringResource\" r WHERE r.\"LanguageId\" = l.\"Id\") > 1000) DESC, l.\"Id\" LIMIT 1")"
+    lang_culture="$(query "SELECT \"LanguageCulture\" FROM \"Language\" WHERE \"Id\" = ${lang:-0}")"
+    # The installer publishes the country's currency first (DisplayOrder 0).
+    currency="$(query "SELECT \"Id\" FROM \"Currency\" WHERE \"Published\" ORDER BY \"DisplayOrder\", \"Id\" LIMIT 1")"
+    currency_code="$(query "SELECT \"CurrencyCode\" FROM \"Currency\" WHERE \"Id\" = ${currency:-0}")"
+    if [ -z "${lang_culture}" ] || [ -z "${currency_code}" ]; then
+        echo "The installer created no language or currency" >&2
         exit 1
     fi
+    if [ "${lang_culture}" != "${culture}" ]; then
+        echo "WARNING: no language pack for ${culture} was installed (nopcommerce.com unreachable or" \
+            "translation incomplete): the store uses ${lang_culture}" >&2
+    fi
+    echo "Initial store settings (${NOP_STORE_NAME}, ${lang_culture}, ${currency_code}, tax ${NOP_TAX_RATE:-0}%)"
+    case "${lang_culture}" in
+        es-*) spanish=true taxable=Afecto exempt=Exento shipping=Despacho ;;
+        *) spanish=false taxable=Taxable exempt=Exempt shipping=Shipping ;;
+    esac
     include_tax=False tax_display=ExcludingTax
     if [ "${NOP_PRICES_INCLUDE_TAX}" = true ]; then
         include_tax=True tax_display=IncludingTax
     fi
     store_name="$(sql_quote "${NOP_STORE_NAME}")"
     cat >> "${sql}" <<SQL
-UPDATE "Store" SET "Name" = ${store_name}, "CompanyName" = ${store_name}, "DefaultLanguageId" = ${lang_es},
+UPDATE "Store" SET "Name" = ${store_name}, "CompanyName" = ${store_name}, "DefaultLanguageId" = ${lang},
     "DefaultTitle" = ${store_name}, "HomepageTitle" = '', "HomepageDescription" = '',
     "DefaultMetaDescription" = '', "DefaultMetaKeywords" = '';
-UPDATE "Language" SET "Published" = ("Id" = ${lang_es}), "DisplayOrder" = CASE WHEN "Id" = ${lang_es} THEN 1 ELSE 2 END;
-UPDATE "Currency" SET "Published" = ("Id" = ${clp}), "Rate" = 1, "DisplayOrder" = CASE WHEN "Id" = ${clp} THEN 1 ELSE 2 END;
+UPDATE "Language" SET "Published" = ("Id" = ${lang}), "DisplayOrder" = CASE WHEN "Id" = ${lang} THEN 1 ELSE 2 END;
+UPDATE "Currency" SET "Published" = ("Id" = ${currency}), "Rate" = 1, "DisplayOrder" = CASE WHEN "Id" = ${currency} THEN 1 ELSE 2 END;
 -- Tax categories: the installer's (Books, Electronics...) replaced.
-UPDATE "TaxCategory" SET "Name" = 'Afecto', "DisplayOrder" = 1 WHERE "Id" = 1;
-UPDATE "TaxCategory" SET "Name" = 'Exento', "DisplayOrder" = 2 WHERE "Id" = 2;
+UPDATE "TaxCategory" SET "Name" = '${taxable}', "DisplayOrder" = 1 WHERE "Id" = 1;
+UPDATE "TaxCategory" SET "Name" = '${exempt}', "DisplayOrder" = 2 WHERE "Id" = 2;
 DELETE FROM "TaxCategory" WHERE "Id" > 2;
 -- Shipping: one free method.
-UPDATE "ShippingMethod" SET "Name" = 'Despacho', "Description" = '', "DisplayOrder" = 1 WHERE "Id" = 1;
+UPDATE "ShippingMethod" SET "Name" = '${shipping}', "Description" = '', "DisplayOrder" = 1 WHERE "Id" = 1;
 DELETE FROM "ShippingMethod" WHERE "Id" > 1;
 SQL
     {
-        set_setting localizationsettings.defaultadminlanguageid "${lang_es}"
-        set_setting currencysettings.primarystorecurrencyid "${clp}"
-        set_setting currencysettings.primaryexchangeratecurrencyid "${clp}"
+        set_setting localizationsettings.defaultadminlanguageid "${lang}"
+        set_setting currencysettings.primarystorecurrencyid "${currency}"
+        set_setting currencysettings.primaryexchangeratecurrencyid "${currency}"
         set_setting datetimesettings.defaultstoretimezoneid "${TZ}"
         set_setting taxsettings.pricesincludetax "${include_tax}"
         set_setting taxsettings.taxdisplaytype "${tax_display}"
@@ -96,13 +119,17 @@ SQL
         set_setting tax.taxprovider.fixedorbycountrystatezip.taxcategoryid2 0
         set_setting paymentsettings.activepaymentmethodsystemnames Payments.CheckMoneyOrder
         set_setting shippingratecomputationmethod.fixedbyweightbytotal.rate.shippingmethodid1 0
-        # "Check / money order" used as a bank transfer.
-        set_resource "${lang_es}" plugins.friendlyname.payments.checkmoneyorder "Transferencia bancaria"
-        set_resource "${lang_es}" plugins.payment.checkmoneyorder.paymentmethoddescription "Pago por transferencia bancaria"
-        set_setting checkmoneyorderpaymentsettings.descriptiontext "<p>Paga por transferencia bancaria: te enviaremos los datos de la cuenta por correo y despacharemos tu pedido cuando recibamos el pago.</p><p>(Puedes editar este texto en Configuración &gt; Pagos &gt; Transferencia bancaria.)</p>"
-        # Postal codes are optional in Chile.
-        set_setting addresssettings.zippostalcoderequired False
-        if [ "${NOP_EMAILS_SPANISH:-true}" = true ]; then
+        if [ "${spanish}" = true ]; then
+            # "Check / money order" used as a bank transfer.
+            set_resource "${lang}" plugins.friendlyname.payments.checkmoneyorder "Transferencia bancaria"
+            set_resource "${lang}" plugins.payment.checkmoneyorder.paymentmethoddescription "Pago por transferencia bancaria"
+            set_setting checkmoneyorderpaymentsettings.descriptiontext "<p>Paga por transferencia bancaria: te enviaremos los datos de la cuenta por correo y despacharemos tu pedido cuando recibamos el pago.</p><p>(Puedes editar este texto en Configuración &gt; Pagos &gt; Transferencia bancaria.)</p>"
+        fi
+        if [ "${country}" = CL ]; then
+            # Postal codes are optional in Chile.
+            set_setting addresssettings.zippostalcoderequired False
+        fi
+        if [ "${spanish}" = true ] && [ "${NOP_EMAILS_SPANISH:-true}" = true ]; then
             # Spanish subjects and bodies of the email templates (the language
             # pack only translates the site). Written into the templates
             # themselves: with a single published language nopCommerce

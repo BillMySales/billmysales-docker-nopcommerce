@@ -85,10 +85,16 @@ if [ "${installed}" = 0 ]; then
     psql -XAqc "CREATE EXTENSION IF NOT EXISTS citext"
     start_nop install install
     jar=/tmp/install.cookies
-    token="$(curl -fsS -c "${jar}" -b "${jar}" "${base}/install" |
-        sed -n 's/.*name="__RequestVerificationToken" type="hidden" value="\([^"]*\)".*/\1/p' | head -1)"
+    curl -fsS -c "${jar}" -b "${jar}" -o /tmp/install-form.html "${base}/install"
+    token="$(sed -n 's/.*name="__RequestVerificationToken" type="hidden" value="\([^"]*\)".*/\1/p' /tmp/install-form.html | head -1)"
     if [ -z "${token}" ]; then
         echo "No antiforgery token on /install" >&2
+        exit 1
+    fi
+    # The installer silently falls back to en-US for an unknown value.
+    if ! grep -F "value=\"${NOP_COUNTRY_CULTURE}\"" /tmp/install-form.html > /dev/null; then
+        echo "NOP_COUNTRY_CULTURE=${NOP_COUNTRY_CULTURE} is not one of the installer's countries" \
+            "(country-culture, e.g. CL-es-CL, US-en-US, ES-es-ES)" >&2
         exit 1
     fi
     curl -fsS -c "${jar}" -b "${jar}" -o /tmp/install.html "${base}/install" \

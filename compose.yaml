@@ -42,8 +42,9 @@ x-nop-env: &nop-env
   HostingConfig__UseProxy: "true"
   HostingConfig__KnownNetworks: 10.0.0.0/8,172.16.0.0/12,192.168.0.0/16
   TZ: ${TIMEZONE:-America/Santiago}
-  # Written by setup into the database on every run; also given to the app so
-  # that a change recreates it (nopCommerce caches its settings).
+  # The store name (written once) and the default sender name of emails
+  # (written by setup on every run); also given to the app so that a change
+  # recreates it (nopCommerce caches its settings).
   NOP_STORE_NAME: ${NOP_STORE_NAME:-nopCommerce}
   SMTP_HOST: ${SMTP_HOST:-}
   SMTP_PORT: ${SMTP_PORT:-587}
@@ -101,7 +102,6 @@ services:
       NOP_ADMIN_PASSWORD: ${NOP_ADMIN_PASSWORD:?Set NOP_ADMIN_PASSWORD in .env}
       NOP_COUNTRY_CULTURE: ${NOP_COUNTRY_CULTURE:-CL-es-CL}
       NOP_TAX_RATE: ${NOP_TAX_RATE-19}
-      NOP_TAX_NAME: ${NOP_TAX_NAME:-IVA}
       NOP_PRICES_INCLUDE_TAX: ${NOP_PRICES_INCLUDE_TAX:-true}
       NOP_EMAILS_SPANISH: ${NOP_EMAILS_SPANISH:-true}
     volumes:
