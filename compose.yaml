@@ -63,6 +63,19 @@ x-nop-volumes: &nop-volumes
   - thumbs:/app/wwwroot/images/thumbs
   - ./scripts:/usr/local/share/stack/scripts:ro
 
+# Host names resolved to the Docker host, in every container that runs
+# nopCommerce (nop and setup):
+x-host-access: &host-access
+  # nopCommerce runs its scheduled tasks (emails, ...) by POSTing to its
+  # own public URL (NOP_URL/scheduletask/runtask): resolve that host to
+  # the Docker host, where Caddy (or Traefik) publishes the site, so it
+  # also works without hairpin NAT or with a *.localhost dev URL.
+  - "${NOP_HOST:?Set NOP_HOST in .env (the host name of NOP_URL)}:host-gateway"
+  # Lets nopCommerce reach services on the host (e.g. an app running
+  # locally) at http://host.docker.internal:<port>, also on Linux (Docker
+  # Desktop resolves it anyway).
+  - "host.docker.internal:host-gateway"
+
 services:
   db:
     image: postgres:${POSTGRES_VERSION:-18}-alpine
@@ -104,6 +117,7 @@ services:
       NOP_TAX_RATE: ${NOP_TAX_RATE-19}
       NOP_PRICES_INCLUDE_TAX: ${NOP_PRICES_INCLUDE_TAX:-true}
       NOP_EMAILS_SPANISH: ${NOP_EMAILS_SPANISH:-true}
+    extra_hosts: *host-access
     volumes:
       - app_data:/app/App_Data
       - uploaded:/app/wwwroot/images/uploaded
@@ -126,15 +140,7 @@ services:
         condition: service_completed_successfully
     environment:
       <<: *nop-env
-    extra_hosts:
-      # nopCommerce runs its scheduled tasks (emails, ...) by POSTing to its
-      # own public URL (NOP_URL/scheduletask/runtask): resolve that host to
-      # the Docker host, where Caddy (or Traefik) publishes the site, so it
-      # also works without hairpin NAT or with a *.localhost dev URL.
-      - "${NOP_HOST:?Set NOP_HOST in .env (the host name of NOP_URL)}:host-gateway"
-      # Lets nopCommerce reach services on the host (e.g. an app running
-      # locally) at http://host.docker.internal:<port>, also on Linux.
-      - "host.docker.internal:host-gateway"
+    extra_hosts: *host-access
     volumes: *nop-volumes
     entrypoint: ["sh", "/usr/local/share/stack/scripts/entrypoint.sh"]
     # Not "/": nopCommerce builds picture URLs from the request's host and
