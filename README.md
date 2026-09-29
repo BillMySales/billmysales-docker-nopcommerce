@@ -324,7 +324,7 @@ Security
 Validation
 ----------
 
-What was checked for this stack (2026-09-25):
+What was checked for this stack:
 
 - Clean start (`down -v` + `up -d --build`, image built) in about a minute:
   every service `healthy`, `setup` `Exited (0)`; a second run makes no
@@ -338,8 +338,8 @@ What was checked for this stack (2026-09-25):
 - Emails through SMTP to Mailpit in Spanish (order receipt to the customer,
   new order to the store), with links to `NOP_URL`; scheduled tasks
   running through `NOP_HOST`.
-- Other cultures (2026-09-26, image rebuilt with `--no-cache --pull`, each
-  on a new database): `US-en-US` (English, USD, "Taxable"/"Exempt"),
+- Other cultures (image rebuilt with `--no-cache --pull`, each on a new
+  database): `US-en-US` (English, USD, "Taxable"/"Exempt"),
   `ES-es-ES` (Spanish texts and emails, EUR, postal code required),
   `DE-de-DE` (German pack, EUR, English names); `DE-de-DE` without access
   to nopcommerce.com falls back to English with a warning; `XX-xx-XX` stops
